@@ -1,1 +1,14 @@
+FAIL: 1991, MinorBapt
+FAIL: 2000, MinorBapt
+FAIL: 2002, MinorBapt
+FAIL: 1999, MinorBapt
+FAIL: 2006, MinorBapt
+FAIL: 2007, MinorBapt
+FAIL: 1996, MinorBapt
+FAIL: 1998, MinorBapt
+FAIL: 2001, MinorBapt
+FAIL: 2004, MinorBapt
+FAIL: 2003, MinorBapt
+FAIL: 2005, MinorBapt
+FAIL: 1998, TotMar
 ALL TESTS PASS!

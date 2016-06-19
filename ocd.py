@@ -62,7 +62,7 @@ for year in years:
 			else:
 				year_data[col].append(split_line[col])
 
-	#print(year_data)
+	# print(year_data)
 	for col in year_data:
 		years_data[year][col[0]] = col[1:]
 	#test(tests, test_results[year]) <-- If we have > 1 test, need to pass in correct data.
@@ -70,6 +70,7 @@ for year in years:
 	#test_results[year].append(test_col_length(year_data))
 
 	f.close()
+	# break;
 
 remove_diocese_blanks(years_data)
 
@@ -123,12 +124,62 @@ for val in target_vals:
 	for y in years_data:
 		by_diocese[val][y] = {}
 		if val in years_data[y]:
+			# This gets messy because of many inconsistencies!
 			for i in range(len(years_data[y]['Diocese'])):
-				all_diocese.add(years_data[y]['Diocese'][i])
-				by_diocese[val][y][years_data[y]['Diocese'][i]] = years_data[y][val][i]
+				# remove archdiocese
+				# years_data[y]['Diocese'][i] = name of diocese
+				if years_data[y]['Diocese'][i].find('(Archdiocese)') < 0:
+					# Fix misspellings of Ukrainian
+					if years_data[y]['Diocese'][i].find('Ukra') < 0:
+						# Fix misspelling of Bismarck
+						if years_data[y]['Diocese'][i].find('Bismark') < 0:
+							# Fix inconsistent location markup
+							fixes = {
+								'KS': 'in Kansas',
+								'IL': 'in Illinois',
+								'IN': 'in Indiana',
+								'': 'in California',
+								'OR': 'in Oregon',
+								'MA': 'in Massachusetts',
+								'TX': 'in Texas',
+								'of Lebanon of L.A.': 'of Lebanon of Los Angeles',
+								'Great Falls-Billings': 'GreatFalls-Billings',
+								'Worcester': 'Worchester',
+								'Victoria': 'Victoria TX',
+								'Reno': 'Reno-Las Vegas',
+								'St. Maron': 'St. Maron Brooklyn'
+							}
+							fixed_diocese = years_data[y]['Diocese'][i]
+							for k in fixes:
+								fixed_diocese = re.sub(fixes[k], k, fixed_diocese)
+							fixed_diocese = fixed_diocese.rstrip()
+
+							# special fix
+							if fixed_diocese == 'Lafayette':
+								fixed_diocese = 'Lafayette LA'
+							all_diocese.add(fixed_diocese)
+							by_diocese[val][y][fixed_diocese] = years_data[y][val][i]
+
+						else:
+							by_diocese[val][y]['Bismarck'] = years_data[y][val][i]
+					else:
+						fixed_diocese = years_data[y]['Diocese'][i]
+						fixed_diocese = re.sub(' - ', ' ', fixed_diocese)
+						fixed_diocese = re.sub('Chicago', '', fixed_diocese)
+						fixed_diocese = re.sub('-', ' ', fixed_diocese)
+						fixed_diocese = fixed_diocese.split(' ')
+						fixed_diocese = ' '.join(fixed_diocese[:-1]).rstrip() + ' - Ukrainian'
+						all_diocese.add(fixed_diocese)
+						by_diocese[val][y][fixed_diocese] = years_data[y][val][i]
+				else:
+					# by_diocese[val][y][years_data[y]['Diocese'][i]] = years_data[y][val][i]
+					# print(by_diocese[val][y][years_data[y]['Diocese'][i]])
+					# print(by_diocese[val])
+					fixed_diocese = years_data[y]['Diocese'][i].split(' ')
+					fixed_diocese = ' '.join(fixed_diocese[:-1])
+					by_diocese[val][y][fixed_diocese] = years_data[y][val][i]
 		else:
 			print('FAIL: ' + y + ", " + val)
-
 for val in by_diocese:
 	csv = []
 	title_row = ['']
